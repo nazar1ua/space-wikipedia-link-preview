@@ -44,15 +44,12 @@ fun Routing.api() {
             is NewUnfurlQueueItemsPayload -> {
                 val queueApi = spaceClient.applications.unfurls.queue
                 var queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)
-                val regex = """https?:\/\/[a-z]{0,2}\.wikipedia.org\/wiki\/[a-z]{1,50}""".toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.MULTILINE))
+//                val regex = """https?:\/\/[a-z]{0,2}\.wikipedia.org\/wiki\/[a-z]{1,50}""".toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.MULTILINE))
                 while (queueItems.isNotEmpty()) {
                     queueItems.forEach { item ->
-                        call.respond(HttpStatusCode.OK, item.target)
-                        if (item.authorUserId != null && regex.containsMatchIn(item.target)) {
-                            val spaceUserId = (item.authorUserId as? ProfileIdentifier.Id)?.id
-                                ?: error("ProfileIdentifier.Id")
-                            provideUnfurlContent(item, spaceUserId)
-                        }
+                        provideUnfurlContent(item)
+                        /*if (regex.containsMatchIn(item.target)) {
+                        }*/
                     }
                     lastEtag = queueItems.last().etag
                     queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)

@@ -1,33 +1,30 @@
 package com.niphoneua.wikipediapreviews
 
 import io.ktor.http.*
-import space.jetbrains.api.runtime.types.ApplicationUnfurlQueueItem
+import space.jetbrains.api.runtime.helpers.unfurl
+import space.jetbrains.api.runtime.resources.applications
+import space.jetbrains.api.runtime.types.*
 
-/*suspend*/ fun provideUnfurlContent(item: ApplicationUnfurlQueueItem, spaceUserId: String) {
-    val url = Url(item.target)
-    val parts = url.encodedPath.split('/').dropWhile { it != "archives" }.drop(1)
+suspend fun provideUnfurlContent(item: ApplicationUnfurlQueueItem) {
+//    val url = Url(item.target)
+//    val parts = url.encodedPath.split('/').drop(1)
 
+    val message = "Hello"
 
-
-    /*val message = try {
-        fetchMessage(channelId, messageId, threadTs, tokens.accessToken)
-    } ?: return
-
-    val authorName = fetchAuthorName(tokens.accessToken, message.user)
     // Build link preview with message constructor DSL
     val content: ApplicationUnfurlContent.Message = unfurl {
         outline(
             MessageOutline(
                 ApiIcon("slack"),
-                "*$authorName* in $channelLink"
+                "Text"
             )
         )
         section {
-            text(message.text)
+            text(message)
             text("[View message](${item.target})")
         }
     }
     spaceClient.applications.unfurls.queue.postUnfurlsContent(
         listOf(ApplicationUnfurl(item.id, content))
-    )*/
+    )
 }
