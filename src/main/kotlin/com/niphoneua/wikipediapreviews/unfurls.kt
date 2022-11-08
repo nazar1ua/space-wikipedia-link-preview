@@ -111,6 +111,17 @@ suspend fun provideUnfurlContent(item: ApplicationUnfurlQueueItem, spaceClient: 
     }
 
     val pageMeta: WikiPage = response.query.pages.values.first()
+
+    // fetch image
+    /*val uploadID = spaceClient.uploads.createUpload(
+        storagePrefix = "attachments",
+        mediaType = "chat-image-attachment"
+    )
+
+    val image: HttpResponse = spaceHttpClient.put("${spaceClient.appInstance.spaceServer}/api/http/uploads/${uploadID}") {
+        setBody(pageMeta.thumbnail.source)
+    }*/
+
     // Build link preview with message constructor DSL
     val content: ApplicationUnfurlContent.Message = unfurl {
         outline(
@@ -127,18 +138,6 @@ suspend fun provideUnfurlContent(item: ApplicationUnfurlQueueItem, spaceClient: 
 
     spaceClient.applications.unfurls.queue.postUnfurlsContent(
         listOf(ApplicationUnfurl(item.id, content))
-    )
-
-    spaceClient.applications.unfurls.queue.postUnfurlsContent(
-        unfurls = listOf(ApplicationUnfurl(
-            // item represents a queue item
-            queueItemId = item.id,
-            content = ApplicationUnfurlContent.Image(
-                icon = null,
-                title = pageMeta.title,
-                url = pageMeta.thumbnail.source
-            )
-        ))
     )
 
     return "Success request"
