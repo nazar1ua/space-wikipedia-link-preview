@@ -5,54 +5,58 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import space.jetbrains.api.runtime.helpers.readPayload
-import space.jetbrains.api.runtime.helpers.verifyWithPublicKey
+import space.jetbrains.api.ExperimentalSpaceSdkApi
+import space.jetbrains.api.runtime.Space
+import space.jetbrains.api.runtime.helpers.RequestAdapter
+import space.jetbrains.api.runtime.helpers.SpaceHttpResponse
+import space.jetbrains.api.runtime.helpers.processPayload
 import space.jetbrains.api.runtime.resources.applications
-import space.jetbrains.api.runtime.types.ChatMessage
-import space.jetbrains.api.runtime.types.MessagePayload
+import space.jetbrains.api.runtime.types.InitPayload
 import space.jetbrains.api.runtime.types.NewUnfurlQueueItemsPayload
-import space.jetbrains.api.runtime.types.ProfileIdentifier
 
 private var lastEtag: Long? = null
 
+@OptIn(ExperimentalSpaceSdkApi::class)
 fun Routing.api() {
     post("api/space") {
-        // read request body
-        val body = call.receiveText()
+        val ktorRequestAdapter = object : RequestAdapter {
+            override suspend fun receiveText() =
+                call.receiveText()
 
-        // verify the request
-        val signature = call.request.header("X-Space-Public-Key-Signature")
-        val timestamp = call.request.header("X-Space-Timestamp")?.toLongOrNull()
-        if (signature.isNullOrBlank() || timestamp == null || !spaceClient.verifyWithPublicKey(
-                body,
-                timestamp,
-                signature
-            )
-        ) {
-            call.respond(HttpStatusCode.Unauthorized)
-            return@post
+            override fun getHeader(headerName: String) =
+                call.request.header(headerName)
+
+            override suspend fun respond(httpStatusCode: Int, body: String) =
+                call.respond(HttpStatusCode.fromValue(httpStatusCode), body)
         }
 
         // read and process the message payload
-        when (val payload = readPayload(body)) {
-            is MessagePayload -> {
-                if ((payload.message.body as? ChatMessage.Text)?.text == "init") {
-                    commandInit(payload.userId)
+        Space.processPayload(ktorRequestAdapter, spaceHttpClient, AppInstanceStorage) {payload ->
+            when (payload) {
+                is InitPayload -> {
+                    requestPermissions()
+                    SpaceHttpResponse.RespondWithOk
                 }
-                call.respond(HttpStatusCode.OK, "")
-            }
-            is NewUnfurlQueueItemsPayload -> {
-                val queueApi = spaceClient.applications.unfurls.queue
-                var queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)
-//                val regex = """https?:\/\/[a-z]{0,2}\.wikipedia.org\/wiki\/[a-z]{1,50}""".toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.MULTILINE))
-                while (queueItems.isNotEmpty()) {
-                    queueItems.forEach { item ->
-                        provideUnfurlContent(item)
-                        /*if (regex.containsMatchIn(item.target)) {
-                        }*/
+                is NewUnfurlQueueItemsPayload -> {
+                    val spaceClient = clientWithClientCredentials()
+
+                    val queueApi = spaceClient.applications.unfurls.queue
+                    var queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)
+                    val regex = """https?://[a-z]{0,2}\.wikipedia.org/wiki/[^/]{1,50}""".toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.MULTILINE))
+                    while (queueItems.isNotEmpty()) {
+                        queueItems.forEach { item ->
+                            if (regex.containsMatchIn(item.target)) {
+                                call.application.environment.log.info(provideUnfurlContent(item, spaceClient))
+                            }
+                        }
+                        lastEtag = queueItems.last().etag
+                        queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)
                     }
-                    lastEtag = queueItems.last().etag
-                    queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)
+                    SpaceHttpResponse.RespondWithOk
+                }
+                else -> {
+                    call.respond(HttpStatusCode.OK)
+                    SpaceHttpResponse.RespondWithOk
                 }
             }
         }

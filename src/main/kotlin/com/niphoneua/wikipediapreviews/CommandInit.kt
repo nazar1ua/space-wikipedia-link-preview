@@ -1,17 +1,20 @@
 package com.niphoneua.wikipediapreviews
 
+import space.jetbrains.api.runtime.helpers.ProcessingScope
 import space.jetbrains.api.runtime.resources.applications
-import space.jetbrains.api.runtime.resources.chats
-import space.jetbrains.api.runtime.types.*
+import space.jetbrains.api.runtime.types.ApplicationIdentifier
+import space.jetbrains.api.runtime.types.GlobalPermissionContextIdentifier
 
-suspend fun commandInit(spaceUserId: String) {
+suspend fun ProcessingScope.requestPermissions() {
+    val spaceClient = clientWithClientCredentials()
+
     spaceClient.applications.authorizations.authorizedRights.requestRights(
         ApplicationIdentifier.Me,
         GlobalPermissionContextIdentifier,
         listOf("Unfurl.App.ProvideAttachment")
     )
-    spaceClient.chats.messages.sendMessage(
-        recipient = MessageRecipient.Member(ProfileIdentifier.Id(spaceUserId)),
-        ChatMessage.Text("ok")
-    )
+    spaceClient.applications.unfurls.domains.updateUnfurledDomains(listOf(
+        "en.wikipedia.org",
+        "uk.wikipedia.org",
+    ))
 }

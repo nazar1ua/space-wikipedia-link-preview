@@ -1,11 +1,19 @@
 package com.niphoneua.wikipediapreviews
 
+import com.niphoneua.wikipediapreviews.db.initDbConnection
 import com.niphoneua.wikipediapreviews.plugins.configureRouting
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
+import io.ktor.server.application.*
+import space.jetbrains.api.runtime.ktorClientForSpace
 
-fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
-        configureRouting()
-    }.start(wait = true)
+@Suppress("unused")
+fun Application.module() {
+    initDbConnection()
+
+    configureRouting()
 }
+
+val spaceHttpClient = ktorClientForSpace()
+
+val config: Config by lazy { ConfigFactory.load() }
