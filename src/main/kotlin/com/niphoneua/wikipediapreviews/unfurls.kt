@@ -112,16 +112,6 @@ suspend fun provideUnfurlContent(item: ApplicationUnfurlQueueItem, spaceClient: 
 
     val pageMeta: WikiPage = response.query.pages.values.first()
 
-    // fetch image
-    /*val uploadID = spaceClient.uploads.createUpload(
-        storagePrefix = "attachments",
-        mediaType = "chat-image-attachment"
-    )
-
-    val image: HttpResponse = spaceHttpClient.put("${spaceClient.appInstance.spaceServer}/api/http/uploads/${uploadID}") {
-        setBody(pageMeta.thumbnail.source)
-    }*/
-
     // Build link preview with message constructor DSL
     val content: ApplicationUnfurlContent.Message = unfurl {
         outline(
@@ -132,7 +122,7 @@ suspend fun provideUnfurlContent(item: ApplicationUnfurlQueueItem, spaceClient: 
         )
         section {
             text(pageMeta.title)
-            text(pageMeta.extract)
+            text("${pageMeta.extract}${if (pageMeta.thumbnail.source.isEmpty()) "\n\n![Image is loading...]${pageMeta.thumbnail.source}" else ""}")
         }
     }
 
