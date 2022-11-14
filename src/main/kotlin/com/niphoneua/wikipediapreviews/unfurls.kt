@@ -122,7 +122,7 @@ suspend fun provideUnfurlContent(item: ApplicationUnfurlQueueItem, spaceClient: 
         )
         section {
             text(pageMeta.title)
-            text("${pageMeta.extract}${if (pageMeta.thumbnail.source.isNotEmpty()) "\n\n![Image is loading...]${pageMeta.thumbnail.source}" else ""}")
+            text("${pageMeta.extract}${if (pageMeta.thumbnail.source.isNotEmpty()) "\n\n![Image is loading...](${pageMeta.thumbnail.source})" else ""}")
         }
     }
 
