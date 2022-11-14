@@ -1,6 +1,6 @@
 # Wikipedia Link Previews
 
-<p align="center">
+<p align="right">
   <a href="https://github.com/nazar1ua/space-wikipedia-link-preview/blob/main/README_UK.md"><img src="https://twemoji.maxcdn.com/v/latest/svg/1f1fa-1f1e6.svg" height="24" width="24" alt="UK" /></a>
 </p>
 

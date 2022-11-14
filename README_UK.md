@@ -1,6 +1,6 @@
 # Wikipedia Link Previews
 
-<p align="center">
+<p align="right">
   <a href="https://github.com/nazar1ua/space-wikipedia-link-preview#readme"><img src="https://twemoji.maxcdn.com/v/latest/svg/1f1ec-1f1e7.svg" height="24" width="24" alt="EN" /></a>
 </p>
 
