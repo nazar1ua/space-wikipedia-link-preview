@@ -44,3 +44,9 @@ fun saveRefreshTokenData(payload: RefreshTokenPayload) = transaction {
         }
     }
 }
+
+fun getLastEtag(clientId: String): Number? = transaction {
+    return@transaction AppInstallation.select { AppInstallation.clientId eq clientId }.firstOrNull()?.get(AppInstallation.lastEtag)
+}
+
+fun setLastEtag() {}

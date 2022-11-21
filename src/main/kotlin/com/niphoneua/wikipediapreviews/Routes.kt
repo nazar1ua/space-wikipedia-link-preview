@@ -1,5 +1,6 @@
 package com.niphoneua.wikipediapreviews
 
+import com.niphoneua.wikipediapreviews.db.getLastEtag
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -39,6 +40,7 @@ fun Routing.api() {
                 }
                 is NewUnfurlQueueItemsPayload -> {
                     val spaceClient = clientWithClientCredentials()
+                    call.application.environment.log.info(getLastEtag(spaceClient.appInstance.clientId).toString())
 
                     val queueApi = spaceClient.applications.unfurls.queue
                     var queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)
