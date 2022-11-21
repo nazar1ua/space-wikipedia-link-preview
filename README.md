@@ -18,5 +18,5 @@ and `docker_ci.sh`
 
 3. Run:
     ```shell
-    bash docker_ci.sh
+    bash docker-ci.sh
     ```

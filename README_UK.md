@@ -18,5 +18,5 @@
 
 3. Запустіть:
     ```shell
-    bash docker_ci.sh
+    bash docker-ci.sh
     ```
