@@ -42,12 +42,9 @@ fun Routing.api() {
 
                     val queueApi = spaceClient.applications.unfurls.queue
                     var queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)
-                    val regex = """(https?://)?[a-z]{0,2}\.wikipedia.org/wiki/[^/]{1,50}""".toRegex(setOf(RegexOption.IGNORE_CASE, RegexOption.MULTILINE))
                     while (queueItems.isNotEmpty()) {
                         queueItems.forEach { item ->
-                            if (regex.containsMatchIn(item.target)) {
-                                call.application.environment.log.info(provideUnfurlContent(item, spaceClient))
-                            }
+                            call.application.environment.log.info(provideUnfurlContent(item, spaceClient))
                         }
                         lastEtag = queueItems.last().etag
                         queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)

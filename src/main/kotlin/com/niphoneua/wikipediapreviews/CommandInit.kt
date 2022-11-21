@@ -14,7 +14,6 @@ suspend fun ProcessingScope.requestPermissions() {
         listOf("Unfurl.App.ProvideAttachment")
     )
     spaceClient.applications.unfurls.domains.updateUnfurledDomains(listOf(
-        "en.wikipedia.org",
-        "uk.wikipedia.org",
+        "wikipedia.org",
     ))
 }
