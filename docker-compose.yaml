@@ -10,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: spaceWikipediaPreviews
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -d spaceEvents -U root"]
+      test: ["CMD-SHELL", "pg_isready -d spaceWikipediaPreviews -U root"]
       interval: 5s
       timeout: 5s
       retries: 5
