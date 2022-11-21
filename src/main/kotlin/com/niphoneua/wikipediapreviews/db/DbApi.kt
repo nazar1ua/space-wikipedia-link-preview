@@ -1,9 +1,6 @@
 package com.niphoneua.wikipediapreviews.db
 
-import org.jetbrains.exposed.sql.AndOp
-import org.jetbrains.exposed.sql.SqlExpressionBuilder
-import org.jetbrains.exposed.sql.replace
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import space.jetbrains.api.runtime.types.RefreshTokenPayload
 
@@ -45,8 +42,12 @@ fun saveRefreshTokenData(payload: RefreshTokenPayload) = transaction {
     }
 }
 
-fun getLastEtag(clientId: String): Number? = transaction {
+fun getLastEtag(clientId: String): Long? = transaction {
     return@transaction AppInstallation.select { AppInstallation.clientId eq clientId }.firstOrNull()?.get(AppInstallation.lastEtag)
 }
 
-fun setLastEtag() {}
+fun setLastEtag(clientId: String, lastEtag: Long?) = transaction {
+    AppInstallation.update ({ AppInstallation.clientId eq clientId }) {
+        it[AppInstallation.lastEtag] = lastEtag
+    }
+}

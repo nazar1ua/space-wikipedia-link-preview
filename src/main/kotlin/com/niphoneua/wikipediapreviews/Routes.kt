@@ -1,6 +1,7 @@
 package com.niphoneua.wikipediapreviews
 
 import com.niphoneua.wikipediapreviews.db.getLastEtag
+import com.niphoneua.wikipediapreviews.db.setLastEtag
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -40,7 +41,7 @@ fun Routing.api() {
                 }
                 is NewUnfurlQueueItemsPayload -> {
                     val spaceClient = clientWithClientCredentials()
-                    call.application.environment.log.info(getLastEtag(spaceClient.appInstance.clientId).toString())
+                    lastEtag = getLastEtag(spaceClient.appInstance.clientId)
 
                     val queueApi = spaceClient.applications.unfurls.queue
                     var queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)
@@ -48,7 +49,8 @@ fun Routing.api() {
                         queueItems.forEach { item ->
                             call.application.environment.log.info(provideUnfurlContent(item, spaceClient))
                         }
-                        lastEtag = queueItems.last().etag
+                        setLastEtag(spaceClient.appInstance.clientId, queueItems.last().etag)
+                        lastEtag = getLastEtag(spaceClient.appInstance.clientId)
                         queueItems = queueApi.getUnfurlQueueItems(lastEtag, batchSize = 100)
                     }
                     SpaceHttpResponse.RespondWithOk
