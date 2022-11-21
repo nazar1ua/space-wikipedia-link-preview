@@ -14,7 +14,7 @@
     ```
 
 2. Змініть дані в `application.conf`, версію в `build.gradle.kts`
-і `docker_ci.sh`
+і `docker-ci.sh`
 
 3. Запустіть:
     ```shell
